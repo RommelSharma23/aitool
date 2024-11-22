@@ -1,116 +1,88 @@
 // src/app/tool/[id]/page.tsx
-'use client';
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { Tool } from '@/types';
-import { toolsApi } from '@/utils/api';
+import React from 'react';
+import { Share2, ArrowRight, Bookmark } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Alert } from '@/components/ui/alert';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import CommentSection from '@/components/CommentSection';
+import Link from 'next/link';
 
-export default function ToolDetail() {
-  const params = useParams();
-  const [tool, setTool] = useState<Tool | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface Tool {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  pricing_type: 'free' | 'paid' | 'freemium';
+  category_name: string;
+}
 
-  useEffect(() => {
-    const fetchTool = async () => {
-      try {
-        setLoading(true);
-        const data = await toolsApi.getToolById(params.id as string);
-        setTool(data);
-      } catch (err) {
-        console.error('Error fetching tool:', err);
-        setError('Failed to fetch tool details');
-      } finally {
-        setLoading(false);
-      }
-    };
+async function getToolDetails(id: string): Promise<Tool> {
+  try {
+    const res = await fetch(`http://localhost:3001/api/tools/${id}`, {
+      cache: 'no-store'
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error('Failed to fetch tool details:', error);
+    throw error;
+  }
+}
 
-    if (params.id) {
-      fetchTool();
-    }
-  }, [params.id]);
+const ToolDetail = async ({ params }: { params: { id: string } }) => {
+  try {
+    const tool = await getToolDetails(params.id);
 
-  if (loading) return <LoadingSpinner />;
-  if (error) return <div className="text-red-500 text-center py-8">{error}</div>;
-  if (!tool) return <div className="text-center py-8">Tool not found</div>;
-
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Tool Header */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="p-6">
-            <div className="flex justify-between items-start">
-              <h1 className="text-3xl font-bold text-gray-900">{tool.name}</h1>
-              <span className={`px-4 py-2 rounded-full text-sm ${
-                tool.pricing_type === 'free' ? 'bg-green-100 text-green-800' :
-                tool.pricing_type === 'paid' ? 'bg-blue-100 text-blue-800' :
-                'bg-purple-100 text-purple-800'
-              }`}>
-                {tool.pricing_type.charAt(0).toUpperCase() + tool.pricing_type.slice(1)}
-              </span>
-            </div>
-            
-            <p className="mt-4 text-gray-600">{tool.description}</p>
-            
-            {/* Tool Stats */}
-            <div className="mt-6 grid grid-cols-3 gap-4 border-t border-b border-gray-200 py-4">
-              <div>
-                <p className="text-sm text-gray-500">Rating</p>
-                <p className="mt-1 font-semibold flex items-center">
-                  <span className="text-yellow-400 mr-1">★</span>
-                  {typeof tool.average_rating === 'number' 
-                    ? tool.average_rating.toFixed(1) 
-                    : '0.0'}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Total Ratings</p>
-                <p className="mt-1 font-semibold">{tool.total_ratings}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Bookmarks</p>
-                <p className="mt-1 font-semibold">{tool.bookmark_count}</p>
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 mb-8">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-4xl font-bold mb-4">{tool.name}</h1>
+              <div className="flex gap-3 mb-6">
+                <span className={`px-4 py-1 rounded-full text-sm font-medium ${
+                  tool.pricing_type === 'free' ? 'bg-green-100 text-green-800' :
+                  tool.pricing_type === 'paid' ? 'bg-blue-100 text-blue-800' :
+                  'bg-purple-100 text-purple-800'
+                }`}>
+                  {tool.pricing_type.charAt(0).toUpperCase() + tool.pricing_type.slice(1)}
+                </span>
+                <span className="px-4 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                  {tool.category_name}
+                </span>
               </div>
             </div>
-
-            {/* Action Buttons */}
-            <div className="mt-6 flex space-x-4">
-              <a 
-                href={tool.url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md text-center hover:bg-blue-700 transition-colors"
-              >
-                Visit Website
-              </a>
-              <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                <svg 
-                  className="w-5 h-5 text-gray-400" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" 
-                  />
-                </svg>
-                <span className="ml-2">Bookmark</span>
+            
+            <div className="flex gap-4">
+              <button className="p-2 rounded-full bg-white shadow-sm hover:shadow-md transition-all">
+                <Share2 className="w-5 h-5" />
+              </button>
+              <button className="p-2 rounded-full bg-white shadow-sm hover:shadow-md transition-all">
+                <Bookmark className="w-5 h-5" />
               </button>
             </div>
           </div>
-        </div>
-
-        {/* Comments Section */}
-        <div className="mt-8">
-          <CommentSection toolId={tool.id} />
+          
+          <p className="text-lg text-gray-600 mb-8">{tool.description}</p>
+          
+          <Link 
+            href={tool.url} 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all"
+          >
+            Visit Tool
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  } catch (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <Alert variant="destructive">Failed to load tool details. Please try again later.</Alert>
+      </div>
+    );
+  }
+};
+
+export default ToolDetail;

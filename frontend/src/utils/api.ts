@@ -1,37 +1,24 @@
 // src/utils/api.ts
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const BASE_URL = 'http://localhost:3001';
 
 export const toolsApi = {
-  getTools: async () => {
-    const response = await api.get('/tools');
-    return response.data;
+  async getTools() {
+    try {
+      const response = await fetch(`${BASE_URL}/api/tools`);
+      if (!response.ok) throw new Error('Failed to fetch tools');
+      return response.json();
+    } catch (error) {
+      throw new Error('Failed to fetch tools');
+    }
   },
-  getToolById: async (id: string) => {
-    const response = await api.get(`/tools/${id}`);
-    return response.data;
-  },
-  getComments: async (toolId: string) => {
-    const response = await api.get(`/tools/${toolId}/comments`);
-    return response.data;
-  },
-  addComment: async (toolId: string, content: string) => {
-    const response = await api.post(`/tools/${toolId}/comments`, { content });
-    return response.data;
-  },
+  
+  async getTool(id: string) {
+    try {
+      const response = await fetch(`${BASE_URL}/api/tools/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch tool');
+      return response.json();
+    } catch (error) {
+      throw new Error('Failed to fetch tool');
+    }
+  }
 };
-
-export const categoriesApi = {
-  getCategories: async () => {
-    const response = await api.get('/categories');
-    return response.data;
-  },
-};
-
-export default api;

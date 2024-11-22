@@ -1,4 +1,5 @@
-// frontend/src/app/categories/page.tsx
+
+// src/app/categories/page.tsx
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -49,7 +50,7 @@ export default function Categories() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {categories.map((category) => (
-          <div key={category.id} className="space-y-4">
+          <div key={category.id}>
             <CategoryCard
               name={category.name}
               toolCount={category.tool_count}
@@ -57,7 +58,7 @@ export default function Categories() {
             />
             
             {category.subcategories && category.subcategories.length > 0 && (
-              <div className="ml-4 space-y-2">
+              <div className="mt-4 ml-4 space-y-2">
                 {category.subcategories.map((sub) => (
                   <CategoryCard
                     key={sub.id}

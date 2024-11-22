@@ -1,9 +1,11 @@
-// src/routes/categoryRoutes.ts
+// backend/src/routes/categoryRoutes.ts
 import express from 'express';
-import { getCategories } from '../controllers/categoryController';
+import { Category, Tool } from '../types';
+import { getAllCategories, getCategoryById } from '../controllers/categoryController';
 
 const router = express.Router();
 
-router.get('/', getCategories);
+router.get('/', getAllCategories);
+router.get('/:id', getCategoryById);
 
-export default router;  // Make sure this line exists!
+export default router;

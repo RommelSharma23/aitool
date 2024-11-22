@@ -1,3 +1,4 @@
+// src/components/Header.tsx
 'use client';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
@@ -15,7 +16,6 @@ const Header = () => {
     setIsDropdownOpen(false);
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -48,6 +48,9 @@ const Header = () => {
             </Link>
             <Link href="/submit" className="text-gray-700 hover:text-gray-900 px-3 py-2">
               Submit Tool
+            </Link>
+            <Link href="/admin" className="text-gray-700 hover:text-gray-900 px-3 py-2">
+              Admin
             </Link>
           </nav>
 
